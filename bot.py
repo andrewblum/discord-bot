@@ -45,6 +45,7 @@ def make_text(chains, char_limit=None):
         key = (key[1], word)
     return ' '.join(words)
 
+
 def get_all_users_messages(username, limit=None):
     counter = 0
     messages = []
@@ -55,15 +56,24 @@ def get_all_users_messages(username, limit=None):
     print(f"Completed retriving {username}'s messages, {counter} in total")
     return messages
 
+
+def clean_messages(messages):
+    cleaned_messages = []
+    for message in messages: 
+        cleaned_message = message.clean_content()
+        cleaned_message = discord.utils.escape_markdown(cleaned_message)
+        cleaned_messages.append(cleaned_message)
+    return clean_messages
+
+
 # Get the filenames from the user through a command line prompt, ex:
 # python markov.py green-eggs.txt shakespeare.txt
 filenames = sys.argv[1:]
-
 # Open the files and turn them into one long string
 text = open_and_read_file(filenames)
-
 # Get a Markov chain
 chains = make_chains(text)
+
 client = discord.Client()
 
 
