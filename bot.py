@@ -45,6 +45,15 @@ def make_text(chains, char_limit=None):
         key = (key[1], word)
     return ' '.join(words)
 
+def get_all_users_messages(username, limit=None):
+    counter = 0
+    messages = []
+    async for message in channel.history(limit=limit):
+        if message.author.name == username:
+            messages.append(message)
+            counter += 1
+    print(f"Completed retriving {username}'s messages, {counter} in total")
+    return messages
 
 # Get the filenames from the user through a command line prompt, ex:
 # python markov.py green-eggs.txt shakespeare.txt
@@ -68,7 +77,9 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    await message.channel.send(make_text(chains))
+    if message.content.startswith('$hello'):
+        await message.channel.send('Hello!')
+        await message.channel.send(make_text(chains))
 
 
 client.run(os.environ['DISCORD_TOKEN'])
