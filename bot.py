@@ -69,16 +69,23 @@ def clean_messages(messages):
     return clean_messages
 
 
+def username_from_command(message):
+    message_as_list = message.content.clean_content().split()
+    if len(message_as_list) < 2: 
+        return None
+    return message_as_list[1]
+
 # Get the filenames from the user through a command line prompt, ex:
 # python markov.py green-eggs.txt shakespeare.txt
-filenames = sys.argv[1:]
+# filenames = sys.argv[1:]
 # Open the files and turn them into one long string
-text = open_and_read_file(filenames)
+# text = open_and_read_file(filenames)
 # Get a Markov chain
-chains = make_chains(text)
+# chains = make_chains(text)
 
 client = discord.Client()
-
+user_chains = {}
+prefix = "$"
 
 @client.event
 async def on_ready():
@@ -90,9 +97,28 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
-        await message.channel.send(make_text(chains))
+    if message.content.startswith(prefix):
+        if message.content.startswith(prefix + "hello"):
+            await message.channel.send("Hello!")
+
+        elif message.content.startswith(prefix + "clone"):
+            username = username_from_command(message)
+            if not username:
+                await message.channel.send(f"Include a valid username, like $clone vodka")
+            else:
+                await message.channel.send(f"Building a fake {username}")
+                all_users_messages = get_all_users_messages(username)
+                cleaned_messages = clean_messages(all_users_messages)
+                user_chains[username] = make_chains(cleaned_messages)
+
+        elif message.content.startswith(prefix + "speak"):
+            username = username_from_command(message)
+            if not username: 
+                await message.channel.send(f"Include a valid username, like $speak vodka")
+            elif username not in user_chains:
+                await message.channel.send(f"Clone them first")
+            else:
+                await message.channel.send(make_text(user_chains[username]))
 
 
 client.run(os.environ['DISCORD_TOKEN'])
