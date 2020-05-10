@@ -15,17 +15,20 @@ def open_and_read_file(filenames):
     return body
 
 
-def make_chains(text_string):
-    """Take input text as string; return dictionary of Markov chains."""
+def make_chains(message_list):
+    """Take list of strings; return dictionary of Markov chains."""
 
     chains = {}
-    words = text_string.split()
-    for i in range(len(words) - 2):
-        key = (words[i], words[i + 1])
-        value = words[i + 2]
-        if key not in chains:
-            chains[key] = []
-        chains[key].append(value)
+    for message in message_list:
+        message = message.split()
+        if len(message) < 3:
+            continue
+        for i in range(len(message) - 2):
+            key = (message[i], message[i + 1])
+            value = message[i + 2]
+            if key not in chains:
+                chains[key] = []
+            chains[key].append(value)
     return chains
 
 
@@ -49,7 +52,7 @@ def make_text(chains, char_limit=None):
 def get_all_users_messages(username, limit=None):
     counter = 0
     messages = []
-    async for message in channel.history(limit=limit):
+    async for message in discord.channel.history(limit=limit):
         if message.author.name == username:
             messages.append(message)
             counter += 1
