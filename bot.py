@@ -17,6 +17,9 @@ def open_and_read_file(filenames):
 
 def make_chains(message_list):
     """Take list of strings; return dictionary of Markov chains."""
+    print('make chains')
+    print(message_list)
+    print(dir(message_list))
 
     chains = {}
     for message in message_list:
@@ -49,13 +52,21 @@ def make_text(chains, char_limit=None):
     return ' '.join(words)
 
 
-def get_all_users_messages(username, limit=None):
+
+async def get_all_users_messages(username, limit=None):
     counter = 0
     messages = []
-    async for message in discord.channel.history(limit=limit):
-        if message.author.name == username:
-            messages.append(message)
-            counter += 1
+    channels = []
+
+    for channel in client.get_all_channels():
+        if channel.type == discord.ChannelType.text:
+            channels.append(channel)
+
+    for channel in channels:
+        async for message in channel.history(limit=limit):
+            if message.author.name == username:
+                messages.append(message)
+                counter += 1
     print(f"Completed retriving {username}'s messages, {counter} in total")
     return messages
 
@@ -63,14 +74,14 @@ def get_all_users_messages(username, limit=None):
 def clean_messages(messages):
     cleaned_messages = []
     for message in messages: 
-        cleaned_message = message.clean_content()
+        cleaned_message = message.clean_content
         cleaned_message = discord.utils.escape_markdown(cleaned_message)
         cleaned_messages.append(cleaned_message)
-    return clean_messages
+    return cleaned_messages
 
 
 def username_from_command(message):
-    message_as_list = message.content.clean_content().split()
+    message_as_list = message.clean_content.split()
     if len(message_as_list) < 2: 
         return None
     return message_as_list[1]
@@ -107,7 +118,7 @@ async def on_message(message):
                 await message.channel.send(f"Include a valid username, like $clone vodka")
             else:
                 await message.channel.send(f"Building a fake {username}")
-                all_users_messages = get_all_users_messages(username)
+                all_users_messages = await get_all_users_messages(username)
                 cleaned_messages = clean_messages(all_users_messages)
                 user_chains[username] = make_chains(cleaned_messages)
 
