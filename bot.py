@@ -17,9 +17,6 @@ def open_and_read_file(filenames):
 
 def make_chains(message_list):
     """Take list of strings; return dictionary of Markov chains."""
-    print('make chains')
-    print(message_list)
-    print(dir(message_list))
 
     chains = {}
     for message in message_list:
@@ -54,14 +51,13 @@ def make_text(chains, char_limit=None):
 
 
 async def get_all_users_messages(username, limit=None):
-    counter = 0
-    messages = []
     channels = []
-
     for channel in client.get_all_channels():
         if channel.type == discord.ChannelType.text:
             channels.append(channel)
 
+    counter = 0
+    messages = []
     for channel in channels:
         async for message in channel.history(limit=limit):
             if message.author.name == username:
