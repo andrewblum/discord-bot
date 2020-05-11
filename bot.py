@@ -49,12 +49,21 @@ def make_text(chains, char_limit=None):
     return ' '.join(words)
 
 
-
-async def get_all_users_messages(username, limit=None):
+def get_all_channels():
     channels = []
     for channel in client.get_all_channels():
         if channel.type == discord.ChannelType.text:
             channels.append(channel)
+    return channels
+
+async def get_all_users_messages(username, limit=None, channels=None):
+    """ Get all of username's messages, up to LIMIT number of messages, from list of channels. 
+        If limit not provided, will get all. 
+        If channels not provided, will search all channels.
+    """
+
+    if not channels:
+        channels = get_all_channels()
 
     counter = 0
     messages = []
